@@ -5,7 +5,7 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
 import dotenv from 'dotenv';
-
+import fs from 'fs'; 
 import connectDB from './utils/database';
 import patientRoutes from './routes/patient';
 import uploadRoutes from './routes/upload';
@@ -30,7 +30,7 @@ app.use(limiter);
 
 // CORS configuration
 const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? ['https://your-frontend-domain.vercel.app']  
+  ? [process.env.FRONTEND_URL || ''] 
   : ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3001', 'http://127.0.0.1:3001'];
 
 app.use(cors({
@@ -46,8 +46,16 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(morgan('combined'));
 
 // Static files for uploads
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+const uploadDir = process.env.NODE_ENV === 'production' 
+  ? '/tmp' 
+  : path.join(process.cwd(), 'uploads');
 
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+  console.log(`Created directory: ${uploadDir}`);
+}
+
+app.use('/uploads', express.static(uploadDir));
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({
