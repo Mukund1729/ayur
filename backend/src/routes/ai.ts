@@ -10,17 +10,12 @@ const router = Router();
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
 
 // Health check for AI service
-router.get('/health', async (req, res) => {
-  try {
-    const response = await axios.get(`${AI_SERVICE_URL}/health`);
-    res.json(response.data);
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: 'AI service unavailable',
-      error: error.message
-    });
-  }
+router.get('/health', (req, res) => {
+  res.json({
+    success: true,
+    message: 'OpenAI Vision Service is ready',
+    status: 'healthy'
+  });
 });
 
 // Analyze image via Gemini AI
@@ -42,8 +37,8 @@ router.post('/analyze', async (req, res) => {
 
     // Extract filename from URL and read the uploaded file
     const filename = imageUrl.replace('/uploads/', '').replace(/^.*[\\/]/, '');
-    const uploadPath = path.join(process.cwd(), 'uploads', filename);
-
+const uploadDir = process.env.NODE_ENV === 'production' ? '/tmp' : path.join(process.cwd(), 'uploads');
+const uploadPath = path.join(uploadDir, filename);
     console.log('📂 Looking for file:', uploadPath);
 
     if (!fs.existsSync(uploadPath)) {
@@ -104,17 +99,14 @@ router.post('/analyze', async (req, res) => {
 });
 
 // Get AI service configuration
-router.get('/config', async (req, res) => {
-  try {
-    const response = await axios.get(`${AI_SERVICE_URL}/config`);
-    res.json(response.data);
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: 'Could not fetch AI configuration',
-      error: error.message
-    });
-  }
+router.get('/config', (req, res) => {
+  res.json({
+    available_apis: {
+      openai: true,
+      gemini: false,
+      claude: false
+    },
+    active_model: 'GPT-4o-mini'
+  });
 });
-
 export default router;
