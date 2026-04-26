@@ -93,11 +93,17 @@ const FileUpload: React.FC<FileUploadProps> = ({
     }
   };
 
-  const openCamera = () => {
-    if (!loading && cameraInputRef.current) {
-      cameraInputRef.current.click();
-    }
-  };
+ const openCamera = (e?: React.MouseEvent) => {
+  // Agar click event aaya hai toh use rokein taaki page reload na ho
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  
+  if (!loading && cameraInputRef.current) {
+    cameraInputRef.current.click();
+  }
+};
 
   const removeFile = () => {
     setSelectedFile(null);
