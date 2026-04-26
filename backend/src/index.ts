@@ -29,13 +29,12 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // CORS configuration
-const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? [process.env.FRONTEND_URL || ''] 
-  : ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3001', 'http://127.0.0.1:3001'];
-
+// Sabse pakka ilaaj (Replace everything from Line 35-43 with this):
 app.use(cors({
-  origin: allowedOrigins,
-  credentials: true
+  origin: true, // Ye automatically request karne wale (Vercel) ko allow kar dega
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Body parsing middleware
